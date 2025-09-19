@@ -16,17 +16,24 @@ const App: React.FC = () => {
     const [currentPage, setCurrentPage] = useState('Dashboard');
     const [language, setLanguage] = useState('English');
     const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>('Free');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    const setFocusMode = (isFocused: boolean) => {
+        if (window.innerWidth >= 768) { // md breakpoint in Tailwind
+            setIsSidebarOpen(!isFocused);
+        }
+    };
 
     const renderPage = () => {
         switch (currentPage) {
             case 'Dashboard':
-                return <Dashboard language={language} />;
+                return <Dashboard language={language} setFocusMode={setFocusMode} />;
             case 'Question Solver':
-                return <QuestionSolver language={language} />;
+                return <QuestionSolver language={language} setFocusMode={setFocusMode} />;
             case 'Notes Summarizer':
-                return <NotesSummarizer language={language} />;
+                return <NotesSummarizer language={language} setFocusMode={setFocusMode} />;
             case 'Study Planner':
-                return <StudyPlanner language={language} />;
+                return <StudyPlanner language={language} setFocusMode={setFocusMode} />;
             case 'Library':
                 return <Library />;
             case 'Profile & Settings':
@@ -35,19 +42,36 @@ const App: React.FC = () => {
                             setLanguage={setLanguage} 
                             subscriptionPlan={subscriptionPlan}
                             setSubscriptionPlan={setSubscriptionPlan}
+                            setFocusMode={setFocusMode}
                         />;
             case 'Support':
-                return <Support language={language} />;
+                return <Support language={language} setFocusMode={setFocusMode} />;
             default:
-                return <Dashboard language={language} />;
+                return <Dashboard language={language} setFocusMode={setFocusMode} />;
         }
     };
 
     return (
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200">
-            <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="flex h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200 overflow-hidden">
+            {isSidebarOpen && (
+                <div 
+                    onClick={() => setIsSidebarOpen(false)} 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden" 
+                    aria-hidden="true"
+                />
+            )}
+            <Sidebar 
+                currentPage={currentPage} 
+                setCurrentPage={(page) => {
+                    setCurrentPage(page);
+                    if (window.innerWidth < 768) {
+                        setIsSidebarOpen(false);
+                    }
+                }} 
+                isOpen={isSidebarOpen}
+            />
             <div className="flex-1 flex flex-col overflow-hidden">
-                <Header currentPage={currentPage} />
+                <Header currentPage={currentPage} onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
                 <main className="flex-1 overflow-y-auto">
                     {renderPage()}
                 </main>

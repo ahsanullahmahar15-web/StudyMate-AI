@@ -5,9 +5,10 @@ import { QUESTION_SOLVER_INSTRUCTION, QUESTION_SOLVER_WELCOME_MESSAGE } from '..
 
 interface QuestionSolverProps {
     language: string;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
-const QuestionSolver: React.FC<QuestionSolverProps> = ({ language }) => {
+const QuestionSolver: React.FC<QuestionSolverProps> = ({ language, setFocusMode }) => {
     const finalSystemInstruction = `${QUESTION_SOLVER_INSTRUCTION}\n\nIMPORTANT: You must respond in the user's preferred language, which is: ${language}.`;
 
     return (
@@ -15,6 +16,7 @@ const QuestionSolver: React.FC<QuestionSolverProps> = ({ language }) => {
             <ChatInterface 
                 systemInstruction={finalSystemInstruction}
                 welcomeMessage={QUESTION_SOLVER_WELCOME_MESSAGE}
+                setFocusMode={setFocusMode}
             />
         </div>
     );

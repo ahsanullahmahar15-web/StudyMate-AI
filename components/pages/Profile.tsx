@@ -24,9 +24,10 @@ interface ProfileProps {
     setLanguage: (language: string) => void;
     subscriptionPlan: SubscriptionPlan;
     setSubscriptionPlan: (plan: SubscriptionPlan) => void;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ language, setLanguage, subscriptionPlan, setSubscriptionPlan }) => {
+const Profile: React.FC<ProfileProps> = ({ language, setLanguage, subscriptionPlan, setSubscriptionPlan, setFocusMode }) => {
     const [profile, setProfile] = useState<ProfileData>({
         name: 'Ali Khan',
         email: 'ali.khan@example.com',
@@ -256,6 +257,7 @@ const Profile: React.FC<ProfileProps> = ({ language, setLanguage, subscriptionPl
                 <ChatInterface 
                     systemInstruction={finalSystemInstruction}
                     welcomeMessage={PROFILE_ASSISTANT_WELCOME_MESSAGE}
+                    setFocusMode={setFocusMode}
                 />
             </div>
         </div>

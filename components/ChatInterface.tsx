@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { Chat } from '@google/genai';
 import { createChatSession } from '../services/geminiService';
@@ -8,9 +9,10 @@ import Loader from './Loader';
 interface ChatInterfaceProps {
     systemInstruction: string;
     welcomeMessage: string;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcomeMessage }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcomeMessage, setFocusMode }) => {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: Role.MODEL,
@@ -43,6 +45,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcom
             if (allowedTypes.includes(selectedFile.type)) {
                 setError(null);
                 setFile(selectedFile);
+                setFocusMode(true); // Enter focus mode on file select
                 if (allowedImageTypes.includes(selectedFile.type)) {
                     const reader = new FileReader();
                     reader.onloadend = () => {
@@ -64,6 +67,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcom
         setFilePreview(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+        if (!inputValue.trim()) {
+            setFocusMode(false); // Exit focus mode if input is also empty
         }
     };
 
@@ -116,7 +122,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcom
                 parts.push({ text: promptText });
             }
 
-            // FIX: The `sendMessageStream` method expects a `SendMessageParameters` object which requires a 'message' property containing the array of parts.
             const stream = await chatSessionRef.current.sendMessageStream({ message: parts });
 
             let modelResponse = '';
@@ -138,8 +143,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcom
             setMessages((prev) => [...prev, { role: Role.MODEL, content: errorMessage }]);
         } finally {
             setIsLoading(false);
+            setFocusMode(false); // Exit focus mode on completion
         }
-    }, [inputValue, isLoading, file, filePreview, systemInstruction]);
+    }, [inputValue, isLoading, file, filePreview, systemInstruction, setFocusMode]);
+    
+    const handleFormFocus = () => setFocusMode(true);
+    const handleFormBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+             if (!inputValue.trim() && !file) {
+                setFocusMode(false);
+            }
+        }
+    };
+
 
     return (
         <div className="flex flex-col h-full bg-gray-100 dark:bg-gray-900">
@@ -150,7 +166,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ systemInstruction, welcom
                 {isLoading && <Loader />}
             </div>
             <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                <div className="max-w-4xl mx-auto">
+                <div 
+                    className="max-w-4xl mx-auto"
+                    onFocus={handleFormFocus}
+                    onBlur={handleFormBlur}
+                >
                     {error && <div className="text-red-500 text-center p-2 mb-2">{error}</div>}
                     {file && (
                         <div className="relative p-2 mb-2 bg-gray-200 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 w-fit">

@@ -6,9 +6,10 @@ import StudyPlannerLoader from '../StudyPlannerLoader';
 
 interface StudyPlannerProps {
     language: string;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
-const StudyPlanner: React.FC<StudyPlannerProps> = ({ language }) => {
+const StudyPlanner: React.FC<StudyPlannerProps> = ({ language, setFocusMode }) => {
     const [formData, setFormData] = useState({
         examName: '',
         subjects: '',
@@ -52,6 +53,7 @@ const StudyPlanner: React.FC<StudyPlannerProps> = ({ language }) => {
             setError("Sorry, I couldn't generate a plan. Please check your connection and try again.");
         } finally {
             setIsLoading(false);
+            setFocusMode(false); // Exit focus mode
         }
     };
     
@@ -59,6 +61,7 @@ const StudyPlanner: React.FC<StudyPlannerProps> = ({ language }) => {
         setFormData({ examName: '', subjects: '', examDate: '', studyHours: '' });
         setStudyPlan(null);
         setError(null);
+        setFocusMode(false); // Exit focus mode
     };
 
     if (isLoading) {
@@ -99,7 +102,16 @@ const StudyPlanner: React.FC<StudyPlannerProps> = ({ language }) => {
                     <p className="text-gray-600 dark:text-gray-400 mt-2">Fill in the details below, and I'll generate a personalized schedule to help you ace your exams.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form 
+                    onSubmit={handleSubmit} 
+                    className="space-y-6"
+                    onFocus={() => setFocusMode(true)}
+                    onBlur={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                            setFocusMode(false);
+                        }
+                    }}
+                >
                     <div>
                         <label htmlFor="examName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exam / Goal Name</label>
                         <input type="text" name="examName" id="examName" value={formData.examName} onChange={handleInputChange} placeholder="e.g., FSC Chemistry Finals" className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"/>

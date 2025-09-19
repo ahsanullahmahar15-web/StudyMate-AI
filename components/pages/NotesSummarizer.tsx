@@ -6,9 +6,10 @@ import { NOTES_SUMMARIZER_INSTRUCTION, NOTES_SUMMARIZER_WELCOME_MESSAGE } from '
 
 interface NotesSummarizerProps {
     language: string;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
-const NotesSummarizer: React.FC<NotesSummarizerProps> = ({ language }) => {
+const NotesSummarizer: React.FC<NotesSummarizerProps> = ({ language, setFocusMode }) => {
     const finalSystemInstruction = `${NOTES_SUMMARIZER_INSTRUCTION}\n\nIMPORTANT: You must respond in the user's preferred language, which is: ${language}.`;
 
     return (
@@ -16,6 +17,7 @@ const NotesSummarizer: React.FC<NotesSummarizerProps> = ({ language }) => {
             <ChatInterface 
                 systemInstruction={finalSystemInstruction}
                 welcomeMessage={NOTES_SUMMARIZER_WELCOME_MESSAGE}
+                setFocusMode={setFocusMode}
             />
         </div>
     );

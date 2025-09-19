@@ -10,6 +10,7 @@ interface FaqItem {
 
 interface SupportProps {
     language: string;
+    setFocusMode: (isFocused: boolean) => void;
 }
 
 const faqData: FaqItem[] = [
@@ -56,7 +57,7 @@ const FaqItem: React.FC<{ faq: FaqItem; isOpen: boolean; onClick: () => void }> 
     );
 };
 
-const Support: React.FC<SupportProps> = ({ language }) => {
+const Support: React.FC<SupportProps> = ({ language, setFocusMode }) => {
     const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
     const handleFaqClick = (index: number) => {
@@ -91,6 +92,7 @@ const Support: React.FC<SupportProps> = ({ language }) => {
                 <ChatInterface 
                     systemInstruction={finalSystemInstruction}
                     welcomeMessage={SUPPORT_ASSISTANT_WELCOME_MESSAGE}
+                    setFocusMode={setFocusMode}
                 />
             </div>
         </div>
